@@ -11,6 +11,7 @@ Spock is inspired from JUnit, jMock, RSpec, Groovy, Scala, Vulcans, and other fa
 dependencies {
   compile libs.groovy // easiest way to add Groovy dependency to POM
   compile libs.junit
+  compile libs.schemaforg
 
   compile libs.jetbrainsAnnotations, optional
   compile libs.ant, optional
@@ -37,7 +38,7 @@ jar {
         'net.sf.cglib.proxy;version="[2.2,2)";resolution:=optional',
         'org.apache.tools.ant.types.selectors;version="[1.7,2)";resolution:=optional',
         'groovy.lang;version="[1.8,3)"', 'org.codehaus.groovy.*;version="[1.8,3)"',
-        'org.junit.runner;version="[4,7)"'
+        'org.junit.*;version="[4,5)"'
   }
 }
 

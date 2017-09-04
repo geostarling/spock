@@ -17,9 +17,13 @@ package org.spockframework.runtime;
 import groovy.lang.GString;
 import org.spockframework.runtime.condition.EditDistance;
 import org.spockframework.runtime.condition.EditPathRenderer;
+import org.spockframework.runtime.condition.SchemaValidationErrorRenderer;
 import org.spockframework.runtime.model.ExpressionInfo;
 import org.spockframework.util.Nullable;
 import org.spockframework.util.ObjectUtil;
+
+import java.util.List;
+import java.util.Map;
 
 public class ExpressionInfoValueRenderer {
   public static final long MAX_EDIT_DISTANCE_MEMORY = 50 * 1024;
@@ -86,6 +90,9 @@ public class ExpressionInfoValueRenderer {
 
   private String doRenderValue(ExpressionInfo expr) {
     String result = renderAsFailedStringComparison(expr);
+    if (result != null) return result;
+
+    result = renderAsFailedSchemaMatch(expr);
     if (result != null) return result;
 
     result = renderAsFailedEqualityComparison(expr);
@@ -155,6 +162,14 @@ public class ExpressionInfoValueRenderer {
       dist.getDistance(), dist.getDistance() == 1 ? "" : "s", dist.getSimilarityInPercent(),
       commonStart, end1, end2,
       new EditPathRenderer().render(sub1, sub2, dist.calculatePath()));
+  }
+
+  private String renderAsFailedSchemaMatch(ExpressionInfo expr) {
+    if (!(expr.getValue() instanceof Throwable)) return null;
+    if (!(expr.getValue() instanceof cz.cvut.fit.schemaforg.api.ValidationException)) return null;
+    // TODO this needs to be generalizable as well
+    cz.cvut.fit.schemaforg.api.ValidationException validationResult = (cz.cvut.fit.schemaforg.api.ValidationException)expr.getValue();
+    return new SchemaValidationErrorRenderer().render(validationResult.getValue(), validationResult.getError()).toString();
   }
 
   private String renderAsFailedEqualityComparison(ExpressionInfo expr) {
